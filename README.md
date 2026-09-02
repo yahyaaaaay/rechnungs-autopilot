@@ -1,5 +1,7 @@
 # Rechnungs-Autopilot
 
+**🚀 [Try the live app](https://rechnungs-autopilot-gnmt3xo72bekyjtg8b27kb.streamlit.app)** — no install needed, opens directly in your browser.
+
 Generates legally correct German invoices (Rechnungen) as PDFs from
 structured data — a real (if early) invoicing tool for tradespeople and
 solo self-employed people, with a proper web form on top.
