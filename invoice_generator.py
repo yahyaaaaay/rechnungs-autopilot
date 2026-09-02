@@ -144,7 +144,16 @@ class InvoicePDF(FPDF):
 
 
 def generate_invoice_pdf(invoice: Invoice, output_path: str) -> str:
-    """Render `invoice` to a PDF file at `output_path`. Returns the path."""
+    """Render `invoice` to a PDF file at `output_path`. Returns the path.
+
+    Creates the parent folder(s) of `output_path` if they don't exist yet.
+    This matters because git doesn't track empty folders — on a fresh
+    clone (e.g. Streamlit Community Cloud pulling from GitHub), an
+    `output/` folder that was empty locally simply isn't there, and
+    writing straight to a missing folder raises FileNotFoundError.
+    """
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
     pdf = InvoicePDF(format="A4", unit="mm")
     pdf.set_auto_page_break(auto=True, margin=25)
     pdf.add_page()
