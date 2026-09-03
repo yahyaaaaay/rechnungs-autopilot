@@ -1,0 +1,9 @@
+# Streamlit theme config — the robust way to reskin an app's colors.
+# Safer than hand-written CSS overrides, which target Streamlit's internal
+# HTML class names and can silently break on a Streamlit version update.
+[theme]
+primaryColor = "#0F766E"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F1F5F9"
+textColor = "#0F172A"
+font = "sans serif"

@@ -8,6 +8,7 @@ solo self-employed people, with a proper web form on top.
 
 - **Step 1** (`invoice_generator.py`): pure Python core — data model + PDF rendering.
 - **Step 2** (`app.py`): a Streamlit web form on top of the exact same core — no HTML/CSS/JS needed.
+- **Step 3** (`database.py`): SQLite persistence — saved seller profiles (looked up by email, not a real login), a separate invoice-number sequence per seller, and a short invoice history. Plus a proper color theme (`.streamlit/config.toml`).
 
 ## What it does
 
@@ -17,18 +18,24 @@ solo self-employed people, with a proper web form on top.
   and descriptions, net total, VAT rate/amount, gross total.
 - Supports **Kleinunternehmer** (§ 19 UStG) sellers: automatically shows
   the required "no VAT charged" wording instead of a tax line.
-- Auto-increments the invoice number (persisted in `invoice_counter.json`,
-  reset per calendar year) so numbers are always unique and consecutive —
-  a legal requirement, not just a nice-to-have.
+- Auto-increments the invoice number **per seller** (persisted in
+  `rechnungen.db`, reset per calendar year) so numbers are always unique
+  and consecutive — a legal requirement, not just a nice-to-have. Each
+  seller (identified by email) gets their own sequence, so two different
+  businesses using the same deployed app never collide.
+- Remembers each seller's company data and invoice history between visits
+  — no more retyping the same address every time.
 
 ## Project structure
 
 ```
 rechnungs-app/
 ├── invoice_generator.py   # core: data model (Seller, Party, LineItem, Invoice) + PDF rendering
+├── database.py            # SQLite: seller profiles, per-seller invoice numbering, invoice history
 ├── app.py                 # Streamlit web form — the "app" you actually run day-to-day
 ├── example_invoice.py     # example usage of the core without any UI — good for learning/testing
-├── invoice_counter.json   # auto-created; tracks the next invoice number
+├── .streamlit/config.toml # color theme
+├── rechnungen.db          # auto-created SQLite database (gitignored — contains real data)
 ├── output/                # generated PDFs land here
 ├── requirements.txt
 └── README.md
@@ -96,14 +103,23 @@ It contains zero tax logic and zero PDF layout code. That's on purpose:
 whatever UI comes next (a proper Flask/React app, a mobile-friendly PWA)
 can reuse `invoice_generator.py` completely unchanged.
 
+## Known limitation: storage on Streamlit Community Cloud isn't guaranteed-persistent
+
+`rechnungen.db` lives on the app's local disk. On the free Community Cloud
+tier, that disk isn't guaranteed to survive every redeploy or long idle
+period — a profile saved today could occasionally need to be re-entered
+later. Fine for the current validation phase (a handful of test users over
+a few days); for real production use, the fix is an external database
+(e.g. a free-tier hosted Postgres) instead of a local SQLite file — a
+later step, once there's a reason (paying users) to justify it.
+
 ## Next steps
 
-- Deploy `app.py` for free on Streamlit Community Cloud so you can test it
-  with real Handwerker on their own phones/laptops (currently local-only).
-- Add a small database (SQLite) so seller data doesn't need retyping and
-  invoices/customers persist between sessions.
 - ZUGFeRD e-invoice export (structured XML embedded in the PDF) — see the
   research notes on the 2027/2028 E-Rechnungspflicht deadlines.
+- Real authentication (replace the email-as-lookup-key with an actual
+  login) once this moves past the friends-and-first-testers stage.
+- External database for guaranteed persistence (see limitation above).
 
 ## License
 

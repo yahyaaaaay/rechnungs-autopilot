@@ -4,3 +4,5 @@ __pycache__/
 .DS_Store
 output/*.pdf
 invoice_counter.json
+rechnungen.db
+.streamlit/secrets.toml
